@@ -200,12 +200,15 @@ func TestWithProjectRoot(t *testing.T) {
 	if err := os.WriteFile(inRoot, []byte("x"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	// An absolute path outside the root, constructed portably (sibling of the
+	// temp dir) so it is genuinely absolute on every OS, including Windows.
+	outside := filepath.Join(filepath.Dir(root), "outside.tex")
 
 	src := strings.Join([]string{
 		"SyncTeX Version:1",
-		"Input:1:" + inRoot,        // absolute, inside root → rewritten relative
-		"Input:2:/etc/outside.tex", // absolute, outside root → dropped
-		"Input:3:sub/rel.tex",      // relative → joined under root, kept
+		"Input:1:" + inRoot,   // absolute, inside root → rewritten relative
+		"Input:2:" + outside,  // absolute, outside root → dropped
+		"Input:3:sub/rel.tex", // relative → joined under root, kept
 		"Content:",
 		"{1",
 		"[1,5:1,2:3,4,0",
