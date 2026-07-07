@@ -42,7 +42,9 @@ func TestParseAndForward(t *testing.T) {
 	if len(f.Inputs) != 2 {
 		t.Fatalf("expected 2 inputs, got %d", len(f.Inputs))
 	}
-	if f.Inputs[1] != "/work/main.tex" || f.Inputs[2] != "/work/intro.tex" {
+	// Input: paths are filepath.Clean'd, which normalises to the OS separator;
+	// compare via ToSlash so the assertion holds on Windows too.
+	if filepath.ToSlash(f.Inputs[1]) != "/work/main.tex" || filepath.ToSlash(f.Inputs[2]) != "/work/intro.tex" {
 		t.Fatalf("input map wrong : %v", f.Inputs)
 	}
 	if len(f.Records) != 7 {
@@ -84,7 +86,7 @@ func TestBackward(t *testing.T) {
 	}
 	// Click near the (1000, 2500) record on page 1 → main.tex line 6.
 	src, line, ok := f.Backward(1, 1010, 2510)
-	if !ok || src != "/work/main.tex" || line != 6 {
+	if !ok || filepath.ToSlash(src) != "/work/main.tex" || line != 6 {
 		t.Fatalf("backward → src=%s line=%d ok=%v (want /work/main.tex line=6)", src, line, ok)
 	}
 }
